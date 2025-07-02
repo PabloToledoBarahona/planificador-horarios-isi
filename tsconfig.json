@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    /* Lenguaje y entorno */
+    "target": "ES2020",                     
+    "module": "CommonJS",                   
+    "lib": ["ES2020"],                      
+    "esModuleInterop": true,                
+    "moduleResolution": "node",            
+    "resolveJsonModule": true,             
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,                         
+    "skipLibCheck": true,                   
+
+    /* Estructura del proyecto */
+    "rootDir": "src",                       
+    "outDir": "dist",                       
+
+    /* Soporte para imports limpios */
+    "allowSyntheticDefaultImports": true,   
+    "baseUrl": "src",                       
+    "paths": {
+      "@config/*": ["config/*"],
+      "@controllers/*": ["controllers/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@prisma/*": ["prisma/*"],
+      "@utils/*": ["utils/*"],
+      "@validations/*": ["validations/*"],
+      "@constants/*": ["constants/*"],
+      "@generated/*": ["generated/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
