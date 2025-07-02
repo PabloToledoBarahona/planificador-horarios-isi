@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  nombre   String
+  rol      String  @default("director") // para futuras extensiones
+}
+
+model Docente {
+  id             Int               @id @default(autoincrement())
+  nombre         String
+  email          String            @unique
+  cargaMaxima    Int
+  disponibilidad Disponibilidad[]
+  asignaciones   Asignacion[]
+}
+
+model Materia {
+  id           Int           @id @default(autoincrement())
+  nombre       String
+  nivel        Int
+  horas        Int
+  tipoAula     String        // 'teorica' o 'practica'
+  grupos       Grupo[]
+  asignaciones Asignacion[]
+}
+
+model Grupo {
+  id         Int     @id @default(autoincrement())
+  letra      String
+  materiaId  Int
+  materia    Materia @relation(fields: [materiaId], references: [id])
+  asignaciones Asignacion[]
+}
+
+model Ambiente {
+  id         Int       @id @default(autoincrement())
+  nombre     String    @unique
+  tipo       String    // 'teorica' o 'practica'
+  capacidad  Int
+  asignaciones Asignacion[]
+}
+
+model Disponibilidad {
+  id         Int     @id @default(autoincrement())
+  dia        String  // 'lunes', 'martes', etc.
+  bloque     Int     // bloque 1 a 7
+  docenteId  Int
+  docente    Docente @relation(fields: [docenteId], references: [id])
+}
+
+model Asignacion {
+  id         Int      @id @default(autoincrement())
+  docenteId  Int
+  grupoId    Int
+  ambienteId Int
+  materiaId  Int
+  dia        String
+  bloque     Int
+
+  docente    Docente  @relation(fields: [docenteId], references: [id])
+  grupo      Grupo    @relation(fields: [grupoId], references: [id])
+  ambiente   Ambiente @relation(fields: [ambienteId], references: [id])
+  materia    Materia  @relation(fields: [materiaId], references: [id])
+}
+
+model Ejecucion {
+  id              Int      @id @default(autoincrement())
+  fecha           DateTime @default(now())
+  parametros      String
+  conflictos      Int
+  seleccionFinal  Boolean
+  archivoEntrada  String // ruta al archivo Excel subido
+}

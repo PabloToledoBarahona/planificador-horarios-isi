@@ -1,0 +1,31 @@
+{
+  "name": "planificador-horarios-isi",
+  "version": "1.0.0",
+  "description": "Sistema de generación inteligente de horarios académicos para Ingeniería de Sistemas Informáticos – UNIVALLE.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PabloToledoBarahona/planificador-horarios-isi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PabloToledoBarahona/planificador-horarios-isi/issues"
+  },
+  "homepage": "https://github.com/PabloToledoBarahona/planificador-horarios-isi#readme",
+  "dependencies": {
+    "@prisma/client": "^6.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "prisma": "^6.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
