@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Recuperación de contraseña</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333333;
+        padding: 0;
+        margin: 0;
+      }
+      .container {
+        max-width: 500px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #0a5dd1;
+        margin-bottom: 20px;
+      }
+      .otp {
+        font-size: 24px;
+        font-weight: bold;
+        background-color: #eef4ff;
+        padding: 15px;
+        text-align: center;
+        border-radius: 6px;
+        letter-spacing: 2px;
+        color: #0a5dd1;
+      }
+      p {
+        margin-bottom: 15px;
+        line-height: 1.5;
+      }
+      .footer {
+        font-size: 12px;
+        color: #777;
+        margin-top: 30px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Código de recuperación</h2>
+      <p>Hola {{nombre}},</p>
+      <p>Hemos recibido una solicitud para restablecer tu contraseña. Tu código de recuperación es:</p>
+
+      <div class="otp">{{otp}}</div>
+
+      <p>Este código expira en 10 minutos.</p>
+
+      <p>Si no solicitaste esta recuperación, puedes ignorar este mensaje.</p>
+
+      <div class="footer">
+        © 2025 Planificador UNIVALLE - Este mensaje fue generado automáticamente.
+      </div>
+    </div>
+  </body>
+</html>

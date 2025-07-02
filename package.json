@@ -4,7 +4,7 @@
   "description": "Sistema de generación inteligente de horarios académicos para Ingeniería de Sistemas Informáticos – UNIVALLE.",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --require tsconfig-paths/register src/index.ts",
     "build": "tsc",
     "prestart": "npm run build",
     "start": "node dist/index.js",
@@ -30,19 +30,26 @@
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
+    "handlebars": "^4.7.8",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.4",
     "prisma": "^6.11.0",
+    "resend": "^4.6.0",
     "zod": "^3.25.68"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/handlebars": "^4.0.40",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^20.6.0",
+    "@types/nodemailer": "^6.4.17",
     "@types/uuid": "^10.0.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3"
   }
 }

@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { prisma } from '@prisma/client';
+import { prisma } from '@prisma/db';
+import { AuthService } from '@services/otp.service';
 
 export const loginController = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
@@ -30,5 +31,35 @@ export const loginController = async (req: Request, res: Response): Promise<void
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error en el servidor' });
+  }
+};
+
+export const requestOtpController = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  try {
+    await AuthService.sendOtpToEmail(email);
+    res.status(200).json({ message: 'OTP enviado al correo institucional' });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: 'Error desconocido al generar OTP' });
+    }
+  }
+};
+
+export const verifyOtpController = async (req: Request, res: Response) => {
+  const { email, otp, newPassword } = req.body;
+
+  try {
+    await AuthService.verifyOtpAndResetPassword(email, otp, newPassword);
+    res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ message: error.message });
+    } else {
+      res.status(400).json({ message: 'Error desconocido' });
+    }
   }
 };
