@@ -35,10 +35,10 @@ model Docente {
 
 model Materia {
   id           Int           @id @default(autoincrement())
-  nombre       String
+  nombre       String        @unique
   nivel        Int
   horas        Int
-  tipoAula     String        // 'teorica' o 'practica'
+  tipoAula     String
   grupos       Grupo[]
   asignaciones Asignacion[]
 }

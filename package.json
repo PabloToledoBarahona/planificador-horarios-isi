@@ -9,6 +9,7 @@
     "prestart": "npm run build",
     "start": "node dist/index.js",
     "seed": "ts-node src/prisma/seed.ts",
+    "seed:fijos": "ts-node src/prisma/seed-datos-fijos.ts",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
