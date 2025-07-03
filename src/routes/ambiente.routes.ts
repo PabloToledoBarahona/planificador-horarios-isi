@@ -6,7 +6,6 @@ import {
   borrarAmbiente,
   getAmbienteByIdController,
 } from '../controllers/ambiente.controller';
-import { obtenerAmbientePorId } from '@services/ambiente.service';
 
 const router = Router();
 

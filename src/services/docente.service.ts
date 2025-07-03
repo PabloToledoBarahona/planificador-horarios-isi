@@ -1,5 +1,4 @@
 import { prisma } from '@prisma/db';
-import { Docente } from '@prisma/client';
 
 export async function listarDocentes() {
   return prisma.docente.findMany({ include: { disponibilidad: true } });

@@ -29,7 +29,8 @@
       "@validations/*": ["validations/*"],
       "@constants/*": ["constants/*"],
       "@generated/*": ["generated/*"]
-    }
+    },
+    "types": ["node", "express"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
