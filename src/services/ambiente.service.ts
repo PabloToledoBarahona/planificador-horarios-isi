@@ -5,6 +5,10 @@ export async function obtenerAmbientes() {
   return prisma.ambiente.findMany({ orderBy: { nombre: 'asc' } });
 }
 
+export async function obtenerAmbientePorId(id: number) {
+  return prisma.ambiente.findUnique({ where: { id } });
+}
+
 export async function crearAmbiente(data: unknown) {
   const parsed = ambienteSchema.safeParse(data);
   if (!parsed.success) {

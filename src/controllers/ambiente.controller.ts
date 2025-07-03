@@ -4,6 +4,7 @@ import {
   crearAmbiente,
   actualizarAmbiente,
   eliminarAmbiente,
+  obtenerAmbientePorId,
 } from '../services/ambiente.service';
 
 export const listarAmbientes = async (_req: Request, res: Response) => {
@@ -15,6 +16,25 @@ export const listarAmbientes = async (_req: Request, res: Response) => {
     res.status(500).json({ message: 'Error al obtener ambientes' });
   }
 };
+
+export async function getAmbienteByIdController(req: Request, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: 'ID inválido' });
+    }
+
+    const ambiente = await obtenerAmbientePorId(id);
+    if (!ambiente) {
+      return res.status(404).json({ message: 'Ambiente no encontrado' });
+    }
+
+    res.json(ambiente);
+  } catch (error) {
+    console.error('Error al obtener ambiente por ID:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+}
 
 export const registrarAmbiente = async (req: Request, res: Response) => {
   try {

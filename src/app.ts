@@ -5,6 +5,7 @@ import authRoutes from '@routes/auth.routes';
 import protectedRoutes from '@routes/protected.routes';
 import excelRoutes from '@routes/excel.routes';
 import ambienteRoutes from '@routes/ambiente.routes';
+import docenteRoutes from '@routes/docente.routes';
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/protected', protectedRoutes);
 app.use('/api/excel', excelRoutes);
 app.use('/api/ambientes', ambienteRoutes);
+app.use('/api/docentes', docenteRoutes);
 
 // Ruta raíz
 app.get('/', (req, res) => {
