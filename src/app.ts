@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from '@routes/auth.routes';
 import protectedRoutes from '@routes/protected.routes';
+import excelRoutes from '@routes/excel.routes';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/protected', protectedRoutes);
+app.use('/api/excel', excelRoutes);
 
 
 // Ruta raíz
