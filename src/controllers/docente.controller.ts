@@ -11,47 +11,74 @@ import {
   docenteUpdateSchema,
 } from '../validations/docente.validator';
 
-export async function getDocentesController(_req: Request, res: Response) {
+/**
+ * GET /api/docentes
+ */
+export async function getDocentesController(_req: Request, res: Response): Promise<void> {
   const docentes = await listarDocentes();
-  res.json(docentes);
+  res.status(200).json(docentes);
 }
 
-export async function getDocenteByIdController(req: Request, res: Response) {
+/**
+ * GET /api/docentes/:id
+ */
+export async function getDocenteByIdController(req: Request, res: Response): Promise<void> {
   const id = Number(req.params.id);
   const docente = await obtenerDocente(id);
-  if (!docente) return res.status(404).json({ message: 'Docente no encontrado' });
-  res.json(docente);
+  if (!docente) {
+    res.status(404).json({ message: 'Docente no encontrado' });
+    return;
+  }
+  res.status(200).json(docente);
 }
 
-export async function postDocenteController(req: Request, res: Response) {
+/**
+ * POST /api/docentes
+ */
+export async function postDocenteController(req: Request, res: Response): Promise<void> {
   const parsed = docenteCreateSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ errors: parsed.error.format() });
+    res.status(400).json({ errors: parsed.error.format() });
+    return;
   }
 
   const nuevo = await crearDocente(parsed.data);
   res.status(201).json(nuevo);
 }
 
-export async function putDocenteController(req: Request, res: Response) {
+/**
+ * PUT /api/docentes/:id
+ */
+export async function putDocenteController(req: Request, res: Response): Promise<void> {
   const id = Number(req.params.id);
   const parsed = docenteUpdateSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ errors: parsed.error.format() });
+    res.status(400).json({ errors: parsed.error.format() });
+    return;
   }
 
   const actualizado = await actualizarDocente(id, parsed.data);
-  if (!actualizado) return res.status(404).json({ message: 'Docente no encontrado' });
-  res.json(actualizado);
+  if (!actualizado) {
+    res.status(404).json({ message: 'Docente no encontrado' });
+    return;
+  }
+
+  res.status(200).json(actualizado);
 }
 
-export async function deleteDocenteController(req: Request, res: Response) {
+/**
+ * DELETE /api/docentes/:id
+ */
+export async function deleteDocenteController(req: Request, res: Response): Promise<void> {
   const id = Number(req.params.id);
   const eliminado = await eliminarDocente(id);
+
   if (!eliminado) {
-    return res.status(400).json({
+    res.status(400).json({
       message: 'No se puede eliminar el docente porque tiene asignaciones',
     });
+    return;
   }
-  res.json({ message: 'Docente eliminado correctamente' });
+
+  res.status(200).json({ message: 'Docente eliminado correctamente' });
 }

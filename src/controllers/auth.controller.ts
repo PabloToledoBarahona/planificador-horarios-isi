@@ -1,65 +1,50 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import { prisma } from '@prisma/db';
-import { AuthService } from '@services/otp.service';
+import { AuthService } from '@services/auth.service';
+import { AuthService as OtpService } from '@services/otp.service';
 
 export const loginController = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
-
   try {
-    const user = await prisma.usuario.findUnique({ where: { email } });
-
-    if (!user) {
-      res.status(404).json({ message: 'Usuario no encontrado' });
-      return;
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      res.status(401).json({ message: 'Contraseña incorrecta' });
-      return;
-    }
-
-    const token = jwt.sign(
-      { userId: user.id, rol: user.rol },
-      process.env.JWT_SECRET!,
-      { expiresIn: '2h' }
-    );
-
-    res.json({ token, nombre: user.nombre });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error en el servidor' });
+    const { token, nombre } = await AuthService.login(email, password);
+    res.json({ token, nombre });
+  } catch (error: any) {
+    res.status(401).json({ message: error.message });
   }
 };
 
-export const requestOtpController = async (req: Request, res: Response) => {
-  const { email } = req.body;
+export const changePasswordController = async (req: Request, res: Response): Promise<void> => {
+  const { password_actual, nuevo_password } = req.body;
+  const userId = req.user?.userId;
 
-  try {
-    await AuthService.sendOtpToEmail(email);
-    res.status(200).json({ message: 'OTP enviado al correo institucional' });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: 'Error desconocido al generar OTP' });
-    }
+  if (!userId) {
+    res.status(401).json({ message: 'Usuario no autenticado' });
+    return;
   }
-};
-
-export const verifyOtpController = async (req: Request, res: Response) => {
-  const { email, otp, newPassword } = req.body;
 
   try {
-    await AuthService.verifyOtpAndResetPassword(email, otp, newPassword);
+    await AuthService.changePassword(userId, password_actual, nuevo_password);
     res.status(200).json({ message: 'Contraseña actualizada correctamente' });
-  } catch (error) {
-    if (error instanceof Error) {
-      res.status(400).json({ message: error.message });
-    } else {
-      res.status(400).json({ message: 'Error desconocido' });
-    }
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const requestOtpController = async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
+  try {
+    await OtpService.sendOtpToEmail(email);
+    res.status(200).json({ message: 'OTP enviado al correo institucional' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const verifyOtpController = async (req: Request, res: Response): Promise<void> => {
+  const { email, otp, newPassword } = req.body;
+  try {
+    await OtpService.verifyOtpAndResetPassword(email, otp, newPassword);
+    res.status(200).json({ message: 'Contraseña actualizada correctamente' });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
   }
 };

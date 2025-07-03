@@ -30,7 +30,10 @@
       "@constants/*": ["constants/*"],
       "@generated/*": ["generated/*"]
     },
-    "types": ["node", "express"]
+
+    /* IMPORTANTE para soportar req.user personalizado */
+    "types": ["node", "express"],
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

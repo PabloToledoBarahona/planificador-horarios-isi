@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import {
   obtenerGrupos,
   crearGrupo,
@@ -7,26 +7,28 @@ import {
   obtenerGrupoPorId,
 } from '@services/grupo.service';
 
-export const getGruposController = async (_req: Request, res: Response) => {
+export const getGruposController: RequestHandler = async (_req, res) => {
   try {
     const grupos = await obtenerGrupos();
-    res.json(grupos);
+    res.status(200).json(grupos);
   } catch (error) {
     console.error('Error al obtener grupos:', error);
     res.status(500).json({ message: 'Error al obtener grupos' });
   }
 };
 
-export const getGrupoByIdController = async (req: Request, res: Response) => {
+export const getGrupoByIdController: RequestHandler = async (req, res) => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({ message: 'ID inválido' });
+      res.status(400).json({ message: 'ID inválido' });
+      return;
     }
 
     const grupo = await obtenerGrupoPorId(id);
     if (!grupo) {
-      return res.status(404).json({ message: 'Grupo no encontrado' });
+      res.status(404).json({ message: 'Grupo no encontrado' });
+      return;
     }
 
     res.status(200).json(grupo);
@@ -36,7 +38,7 @@ export const getGrupoByIdController = async (req: Request, res: Response) => {
   }
 };
 
-export const postGrupoController = async (req: Request, res: Response) => {
+export const postGrupoController: RequestHandler = async (req, res) => {
   try {
     const grupo = await crearGrupo(req.body);
     res.status(201).json(grupo);
@@ -45,7 +47,7 @@ export const postGrupoController = async (req: Request, res: Response) => {
   }
 };
 
-export const putGrupoController = async (req: Request, res: Response) => {
+export const putGrupoController: RequestHandler = async (req, res) => {
   try {
     const id = Number(req.params.id);
     const grupo = await actualizarGrupo(id, req.body);
@@ -55,11 +57,11 @@ export const putGrupoController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteGrupoController = async (req: Request, res: Response) => {
+export const deleteGrupoController: RequestHandler = async (req, res) => {
   try {
     const id = Number(req.params.id);
     const grupo = await eliminarGrupo(id);
-    res.json({ message: 'Grupo eliminado correctamente', grupo });
+    res.status(200).json({ message: 'Grupo eliminado correctamente', grupo });
   } catch (error: any) {
     res.status(400).json({ message: error.message || 'No se pudo eliminar el grupo' });
   }

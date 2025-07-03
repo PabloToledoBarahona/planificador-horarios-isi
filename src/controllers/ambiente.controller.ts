@@ -1,15 +1,12 @@
 import { Request, Response } from 'express';
-import {
-  obtenerAmbientes,
-  crearAmbiente,
-  actualizarAmbiente,
-  eliminarAmbiente,
-  obtenerAmbientePorId,
-} from '../services/ambiente.service';
+import { AmbienteService } from '@services/ambiente.service';
 
-export const listarAmbientes = async (_req: Request, res: Response) => {
+/**
+ * GET /api/ambientes
+ */
+export const listarAmbientes = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const ambientes = await obtenerAmbientes();
+    const ambientes = await AmbienteService.obtenerTodos();
     res.status(200).json(ambientes);
   } catch (error) {
     console.error('Error al listar ambientes:', error);
@@ -17,28 +14,36 @@ export const listarAmbientes = async (_req: Request, res: Response) => {
   }
 };
 
-export async function getAmbienteByIdController(req: Request, res: Response) {
+/**
+ * GET /api/ambientes/:id
+ */
+export const getAmbienteByIdController = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({ message: 'ID inválido' });
+      res.status(400).json({ message: 'ID inválido' });
+      return;
     }
 
-    const ambiente = await obtenerAmbientePorId(id);
+    const ambiente = await AmbienteService.obtenerPorId(id);
     if (!ambiente) {
-      return res.status(404).json({ message: 'Ambiente no encontrado' });
+      res.status(404).json({ message: 'Ambiente no encontrado' });
+      return;
     }
 
-    res.json(ambiente);
+    res.status(200).json(ambiente);
   } catch (error) {
     console.error('Error al obtener ambiente por ID:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
-}
+};
 
-export const registrarAmbiente = async (req: Request, res: Response) => {
+/**
+ * POST /api/ambientes
+ */
+export const registrarAmbiente = async (req: Request, res: Response): Promise<void> => {
   try {
-    const ambiente = await crearAmbiente(req.body);
+    const ambiente = await AmbienteService.crear(req.body);
     res.status(201).json(ambiente);
   } catch (error: any) {
     console.error('Error al crear ambiente:', error);
@@ -46,10 +51,13 @@ export const registrarAmbiente = async (req: Request, res: Response) => {
   }
 };
 
-export const editarAmbiente = async (req: Request, res: Response) => {
+/**
+ * PUT /api/ambientes/:id
+ */
+export const editarAmbiente = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
-    const ambiente = await actualizarAmbiente(id, req.body);
+    const ambiente = await AmbienteService.actualizar(id, req.body);
     res.status(200).json(ambiente);
   } catch (error: any) {
     console.error('Error al actualizar ambiente:', error);
@@ -57,10 +65,13 @@ export const editarAmbiente = async (req: Request, res: Response) => {
   }
 };
 
-export const borrarAmbiente = async (req: Request, res: Response) => {
+/**
+ * DELETE /api/ambientes/:id
+ */
+export const borrarAmbiente = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = Number(req.params.id);
-    const ambiente = await eliminarAmbiente(id);
+    const ambiente = await AmbienteService.eliminar(id);
     res.status(200).json({ message: 'Ambiente eliminado correctamente', ambiente });
   } catch (error: any) {
     console.error('Error al eliminar ambiente:', error);

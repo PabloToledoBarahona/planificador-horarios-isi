@@ -18,3 +18,21 @@ export const validateLogin = (
   }
   return next();
 };
+
+const changePasswordSchema = z.object({
+  password_actual: z.string().min(6),
+  nuevo_password: z.string().min(6),
+});
+
+export const validatePasswordChange = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  const result = changePasswordSchema.safeParse(req.body);
+  if (!result.success) {
+    res.status(400).json({ errors: result.error.errors });
+    return;
+  }
+  return next();
+};
