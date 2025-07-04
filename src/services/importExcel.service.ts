@@ -1,148 +1,124 @@
 import { prisma } from '@prisma/db';
-import { z } from 'zod';
+import { DocenteExcel, DisponibilidadExcel, GrupoExcel } from '../types/types';
 import {
-  DocenteExcel,
-  DisponibilidadExcel,
-  GrupoExcel,
-} from '../types/types';
+  validarDocente,
+  validarDisponibilidad,
+  validarGrupo,
+} from '../validations/importExcel.validation';
+import { ResumenImportacion } from '../validations/importExcel.validation';
 
-// Esquemas de validación con Zod
-const docenteSchema = z.object({
-  nombre: z.string().min(1),
-  email: z.string().email(),
-  cargaMaxima: z.number().int().nonnegative(),
-});
-
-const disponibilidadSchema = z.object({
-  docenteEmail: z.string().email(),
-  dia: z.string().min(1),
-  bloque: z.number().int().nonnegative(),
-});
-
-const grupoSchema = z.object({
-  materia: z.string().min(1),
-  letra: z.string().min(1),
-});
-
-/**
- * Inserta docentes desde Excel, evitando duplicados por email.
- */
-export async function insertarDocentes(docentes: DocenteExcel[]) {
+export async function insertarDocentes(docentes: DocenteExcel[]): Promise<ResumenImportacion> {
   let insertados = 0;
   let omitidos = 0;
+  const errores: string[] = [];
 
   for (const raw of docentes) {
-    const parsed = docenteSchema.safeParse(raw);
+    const { valido, data, error } = validarDocente(raw);
 
-    if (!parsed.success) {
-      console.warn('Docente inválido, se omite:', raw);
+    if (!valido || !data) {
+      errores.push(`Docente inválido: ${error}`);
       omitidos++;
       continue;
     }
 
-    const { email, nombre, cargaMaxima } = parsed.data;
-    const yaExiste = await prisma.docente.findUnique({ where: { email } });
+    const yaExiste = await prisma.docente.findUnique({ where: { email: data.email } });
 
-    if (!yaExiste) {
-      await prisma.docente.create({ data: { email, nombre, cargaMaxima } });
-      insertados++;
-    } else {
+    if (yaExiste) {
+      errores.push(`Docente duplicado (email): ${data.email}`);
       omitidos++;
+      continue;
     }
+
+    await prisma.docente.create({ data });
+    insertados++;
   }
 
-  return { insertados, omitidos };
+  return { insertados, omitidos, errores };
 }
 
-/**
- * Inserta disponibilidad horaria, evitando duplicados por docenteId + día + bloque.
- */
-export async function insertarDisponibilidad(disponibilidades: DisponibilidadExcel[]) {
+export async function insertarDisponibilidad(disponibilidades: DisponibilidadExcel[]): Promise<ResumenImportacion> {
   let insertados = 0;
   let omitidos = 0;
+  const errores: string[] = [];
 
   for (const raw of disponibilidades) {
-    const parsed = disponibilidadSchema.safeParse(raw);
+    const { valido, data, error } = validarDisponibilidad(raw);
 
-    if (!parsed.success) {
-      console.warn('Disponibilidad inválida, se omite:', raw);
+    if (!valido || !data) {
+      errores.push(`Disponibilidad inválida: ${error}`);
       omitidos++;
       continue;
     }
 
-    const { docenteEmail, dia, bloque } = parsed.data;
-    const docente = await prisma.docente.findUnique({ where: { email: docenteEmail } });
-
+    const docente = await prisma.docente.findUnique({ where: { email: data.docenteEmail } });
     if (!docente) {
-      console.warn('Docente no encontrado para disponibilidad:', docenteEmail);
+      errores.push(`Docente inexistente para disponibilidad: ${data.docenteEmail}`);
       omitidos++;
       continue;
     }
 
     const yaExiste = await prisma.disponibilidad.findFirst({
-      where: { docenteId: docente.id, dia, bloque },
+      where: { docenteId: docente.id, dia: data.dia, bloque: data.bloque },
     });
 
-    if (!yaExiste) {
-      await prisma.disponibilidad.create({
-        data: { docenteId: docente.id, dia, bloque },
-      });
-      insertados++;
-    } else {
-      omitidos++;
-    }
-  }
-
-  return { insertados, omitidos };
-}
-
-/**
- * Inserta grupos por materia, evitando duplicados por materia + letra.
- */
-export async function insertarGrupos(grupos: GrupoExcel[]) {
-  let insertados = 0;
-  let omitidos = 0;
-
-  for (const raw of grupos) {
-    const parsed = grupoSchema.safeParse(raw);
-
-    if (!parsed.success) {
-      console.warn('Grupo inválido, se omite:', raw);
+    if (yaExiste) {
+      errores.push(`Disponibilidad duplicada: ${data.docenteEmail} - ${data.dia} bloque ${data.bloque}`);
       omitidos++;
       continue;
     }
 
-    const { materia, letra } = parsed.data;
+    await prisma.disponibilidad.create({
+      data: { docenteId: docente.id, dia: data.dia, bloque: data.bloque },
+    });
 
-    // Búsqueda insensible a mayúsculas/minúsculas
-    const materiaEntity = await prisma.materia.findFirst({
+    insertados++;
+  }
+
+  return { insertados, omitidos, errores };
+}
+
+export async function insertarGrupos(grupos: GrupoExcel[]): Promise<ResumenImportacion> {
+  let insertados = 0;
+  let omitidos = 0;
+  const errores: string[] = [];
+
+  for (const raw of grupos) {
+    const { valido, data, error } = validarGrupo(raw);
+
+    if (!valido || !data) {
+      errores.push(`Grupo inválido: ${error}`);
+      omitidos++;
+      continue;
+    }
+
+    const materia = await prisma.materia.findFirst({
       where: {
-        nombre: {
-          equals: materia.trim(),
-          mode: 'insensitive',
-        },
+        nombre: { equals: data.materia.trim(), mode: 'insensitive' },
       },
     });
 
-    if (!materiaEntity) {
-      console.warn('Materia no encontrada para grupo:', materia);
+    if (!materia) {
+      errores.push(`Materia inexistente: ${data.materia}`);
       omitidos++;
       continue;
     }
 
     const yaExiste = await prisma.grupo.findFirst({
-      where: { letra, materiaId: materiaEntity.id },
+      where: { materiaId: materia.id, letra: data.letra },
     });
 
-    if (!yaExiste) {
-      await prisma.grupo.create({
-        data: { letra, materiaId: materiaEntity.id },
-      });
-      insertados++;
-    } else {
+    if (yaExiste) {
+      errores.push(`Grupo duplicado: ${data.materia} - ${data.letra}`);
       omitidos++;
+      continue;
     }
+
+    await prisma.grupo.create({
+      data: { letra: data.letra, materiaId: materia.id },
+    });
+
+    insertados++;
   }
 
-  return { insertados, omitidos };
+  return { insertados, omitidos, errores };
 }
