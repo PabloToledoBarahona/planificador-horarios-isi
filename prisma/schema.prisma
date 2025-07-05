@@ -31,6 +31,7 @@ model Docente {
   cargaMaxima    Int
   disponibilidad Disponibilidad[]
   asignaciones   Asignacion[]
+  bloquesProhibidos BloqueProhibido[] 
 }
 
 model Materia {
@@ -89,4 +90,15 @@ model Ejecucion {
   conflictos      Int
   seleccionFinal  Boolean
   archivoEntrada  String // ruta al archivo Excel subido
+}
+
+model BloqueProhibido {
+  id         Int     @id @default(autoincrement())
+  docenteId  Int
+  dia        String  // 'lunes', 'martes', etc.
+  bloque     Int     // 1 a 7
+
+  docente    Docente @relation(fields: [docenteId], references: [id])
+
+  @@unique([docenteId, dia, bloque]) // evita duplicados
 }

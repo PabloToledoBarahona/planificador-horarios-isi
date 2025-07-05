@@ -8,6 +8,7 @@ import ambienteRoutes from '@routes/ambiente.routes';
 import docenteRoutes from '@routes/docente.routes';
 import grupoRoutes from '@routes/grupo.routes';
 import { verifyToken } from '@middlewares/auth.middleware';
+import bloqueProhibidoRoutes from '@routes/bloqueProhibido.routes';
 
 dotenv.config();
 
@@ -19,7 +20,6 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/auth', authRoutes);
-app.use('/api/protected', protectedRoutes);
 
 // Rutas protegidas
 app.use('/api/protected', verifyToken, protectedRoutes);
@@ -27,6 +27,7 @@ app.use('/api/excel', verifyToken, excelRoutes);
 app.use('/api/ambientes', verifyToken, ambienteRoutes);
 app.use('/api/docentes', verifyToken, docenteRoutes);
 app.use('/api/grupos', verifyToken, grupoRoutes);
+app.use('/api/bloques-prohibidos', verifyToken, bloqueProhibidoRoutes);
 
 // Ruta raíz
 app.get('/', (req, res) => {
